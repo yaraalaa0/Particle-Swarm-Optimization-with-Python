@@ -16,17 +16,18 @@ import math
 #--- COST FUNCTION ------------------------------------------------------------+
 
 # function we are attempting to optimize (minimize)
-def func1(x):
+def func1(x,f):
     total=0
     for i in range(len(x)):
-        total+=x[i]**2
+        total+=(f[i]-x[i])**2
     return total
 
 #--- MAIN ---------------------------------------------------------------------+
 
 class Particle:
-    def __init__(self,x0):
+    def __init__(self,x0,final):
         self.position_i=[]          # particle position
+        self.final_i= []            #particle final destination
         self.velocity_i=[]          # particle velocity
         self.pos_best_i=[]          # best position individual
         self.err_best_i=-1          # best error individual
@@ -35,10 +36,11 @@ class Particle:
         for i in range(0,num_dimensions):
             self.velocity_i.append(random.uniform(-1,1))
             self.position_i.append(x0[i])
+            self.final_i.append(final[i])
 
     # evaluate current fitness
     def evaluate(self,costFunc):
-        self.err_i=costFunc(self.position_i)
+        self.err_i=costFunc(self.position_i,self.final_i)
 
         # check to see if the current position is an individual best
         if self.err_i<self.err_best_i or self.err_best_i==-1:
@@ -73,7 +75,7 @@ class Particle:
                 self.position_i[i]=bounds[i][0]
         
 class PSO():
-    def __init__(self, costFunc, x0, bounds, num_particles, maxiter, verbose=False):
+    def __init__(self, costFunc, x0, final, bounds, num_particles, maxiter, verbose=False):
         global num_dimensions
 
         num_dimensions=len(x0)
@@ -83,7 +85,7 @@ class PSO():
         # establish the swarm
         swarm=[]
         for i in range(0,num_particles):
-            swarm.append(Particle(x0))
+            swarm.append(Particle(x0,final))
 
         # begin optimization loop
         i=0
@@ -115,7 +117,8 @@ if __name__ == "__PSO__":
 #--- RUN ----------------------------------------------------------------------+
 
 initial=[5,5]               # initial starting location [x1,x2...]
+goal = [7,7]                # target position [y1,y2...] 
 bounds=[(-10,10),(-10,10)]  # input bounds [(x1_min,x1_max),(x2_min,x2_max)...]
-PSO(func1, initial, bounds, num_particles=15, maxiter=30, verbose=True)
+PSO(func1, initial, goal, bounds, num_particles=15, maxiter=30, verbose=True)
 
 #--- END ----------------------------------------------------------------------+
